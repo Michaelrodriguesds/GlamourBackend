@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: glamour-agenda-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        fromDatabase:
+          name: glamour-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: APP_USER
+        sync: false
+      - key: APP_PASS
+        sync: false
+      - key: WORK_START
+        value: "7"
+      - key: WORK_END
+        value: "21"
