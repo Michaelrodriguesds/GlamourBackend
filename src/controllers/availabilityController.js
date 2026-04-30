@@ -10,9 +10,13 @@ const generateSlots = () => {
   const slots = [];
   for (let h = start; h <= end; h++) {
     slots.push(`${String(h).padStart(2, "0")}:00`);
+    if (h < end) {
+      slots.push(`${String(h).padStart(2, "0")}:30`);
+    }
   }
   return slots;
 };
+// Slots: 07:00, 07:30, 08:00, 08:30, ..., 20:30, 21:00 (29 slots)
 
 const ALL_SLOTS = generateSlots();
 

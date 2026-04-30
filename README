@@ -1,0 +1,89 @@
+# 🌸 Glamour Agenda API
+
+Backend da aplicação Glamour Agenda — responsável por agendamentos, disponibilidade e autenticação.
+
+---
+
+## 🚀 Funcionalidades
+
+* 📅 CRUD de agendamentos
+* ⏱️ Horários de 30 em 30 min (07h às 21h)
+* 👥 Até 2 clientes por horário
+* 📊 Estatísticas básicas
+* 🔐 Autenticação com JWT
+
+---
+
+## 🛠️ Tecnologias
+
+* Node.js
+* Express
+* MongoDB + Mongoose
+* JWT
+* dotenv
+
+---
+
+## 📂 Estrutura
+
+src/
+
+* config/
+* controllers/
+* models/
+* routes/
+* middlewares/
+
+---
+
+## 🔗 Endpoints
+
+Auth
+POST /api/auth/login
+
+Agendamentos
+GET /api/appointments
+POST /api/appointments
+PUT /api/appointments/:id
+DELETE /api/appointments/:id
+
+Disponibilidade
+GET /api/availability?date=YYYY-MM-DD
+GET /api/availability/month?month=MM&year=YYYY
+
+Stats
+GET /api/stats
+
+Health
+GET /health
+
+---
+
+## ⚙️ .env
+
+PORT=5000
+MONGO_URI=sua_uri
+JWT_SECRET=seu_segredo
+WORK_START=7
+WORK_END=21
+
+---
+
+## ▶️ Rodar projeto
+
+npm install
+npm run dev
+
+---
+
+## 🔐 Auth
+
+Header obrigatório:
+
+Authorization: Bearer SEU_TOKEN
+
+---
+
+## 🌐 Frontend
+
+https://github.com/Michaelrodriguesds/GlamourFrontend
