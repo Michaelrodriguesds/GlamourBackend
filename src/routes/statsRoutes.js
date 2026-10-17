@@ -6,5 +6,6 @@ const { protect } = require("../../src/middlewares/auth");
 router.use(protect);
 
 router.get("/monthly", ctrl.getMonthlyStats); // GET /api/stats/monthly?month=&year=
+router.get("/trend",   ctrl.getTrendStats);   // GET /api/stats/trend?year=  ← estava ausente
 
 module.exports = router;

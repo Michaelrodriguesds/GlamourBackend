@@ -35,7 +35,12 @@ const buildFilters = (query) => {
   if (query.confirmed !== undefined) filters.confirmed = query.confirmed === "true";
 
   if (query.client) {
-    filters.clientName = { $regex: query.client, $options: "i" };
+    // clientExact=true → usado pela tela de detalhe de cliente, que
+    // precisa do histórico de UM cliente específico, sem risco de
+    // casar substring com outro nome parecido (ex: "Ana" ~ "Ana Paula").
+    filters.clientName = query.clientExact === "true"
+      ? query.client
+      : { $regex: query.client, $options: "i" };
   }
 
   return filters;
@@ -61,11 +66,27 @@ const normalizeProcedures = (body) => {
 // LISTAR agendamentos
 // GET /api/appointments
 // ────────────────────────────────────────────────────────────────
+// Limite de segurança quando a busca não tem nenhum filtro de data nem
+// de cliente. Hoje (poucos documentos) não faz diferença nenhuma — é
+// proteção para quando a base crescer e alguma chamada esquecer de
+// mandar month/year (ex: a antiga tela de clientes, já corrigida para
+// usar o endpoint /api/clients em vez desta rota sem filtro).
+const SAFETY_LIMIT = 500;
+
 exports.getAppointments = async (req, res) => {
   try {
-    const filters      = buildFilters(req.query);
-    const appointments = await Appointment.find(filters).sort({ date: 1, time: 1 });
-    res.json({ count: appointments.length, data: appointments });
+    const filters = buildFilters(req.query);
+    const isBounded = Boolean(filters.date || filters.clientName);
+
+    const appointments = isBounded
+      ? await Appointment.find(filters).sort({ date: 1, time: 1 })
+      : await Appointment.find(filters).sort({ date: -1, time: -1 }).limit(SAFETY_LIMIT);
+
+    res.json({
+      count:     appointments.length,
+      data:      appointments,
+      truncated: !isBounded && appointments.length === SAFETY_LIMIT,
+    });
   } catch (error) {
     console.error("getAppointments:", error);
     res.status(500).json({ error: error.message });

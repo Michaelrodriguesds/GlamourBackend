@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      maxPoolSize:              5,      // Atlas M0 suporta até 500; 5 é seguro
+      maxPoolSize:              10,     // Atlas M0 suporta até 500; 10 dá folga para
+                                         // as consultas em paralelo das telas de
+                                         // estatística sem gerar fila por conexão
       serverSelectionTimeoutMS: 5000,  // desiste de conectar em 5s
       socketTimeoutMS:          45000, // fecha socket ocioso após 45s
     });

@@ -26,7 +26,17 @@ exports.verifyToken = (req, res) => {
 // ─── Refresh token silencioso ─────────────────────────────────────
 // POST /api/auth/refresh  — Bearer <token_atual>
 // Não exige token válido (pode estar expirado); verifica com ignoreExpiration.
-// Só recusa se o token for totalmente inválido (assinatura errada).
+// Só recusa se o token for totalmente inválido (assinatura errada) OU se
+// já estiver expirado há mais tempo do que a "janela de graça" abaixo.
+//
+// ⚠️ SEGURANÇA: `ignoreExpiration: true` sozinho permitiria renovar um
+// token expirado há MESES ou ANOS indefinidamente, pois a única checagem
+// era a assinatura. Um token antigo vazado (ex: de um dispositivo
+// perdido/roubado) nunca perderia a validade. Por isso adicionamos um
+// limite: só aceitamos renovar um token que expirou há no máximo
+// REFRESH_GRACE_PERIOD_MS atrás. Depois disso, é exigido login de novo.
+const REFRESH_GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000; // 7 dias
+
 exports.refreshToken = (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -36,13 +46,23 @@ exports.refreshToken = (req, res) => {
 
     const oldToken = authHeader.split(" ")[1];
 
-    // Decodifica sem checar expiração
+    // Decodifica sem checar expiração (mas AINDA valida a assinatura)
     let decoded;
     try {
       decoded = jwt.verify(oldToken, process.env.JWT_SECRET, { ignoreExpiration: true });
     } catch (err) {
       // Assinatura inválida — token adulterado
       return res.status(401).json({ error: "Token inválido" });
+    }
+
+    // Confere há quanto tempo o token expirou (campo `exp`, em segundos)
+    if (decoded.exp) {
+      const expiredMsAgo = Date.now() - decoded.exp * 1000;
+      if (expiredMsAgo > REFRESH_GRACE_PERIOD_MS) {
+        return res.status(401).json({
+          error: "Sessão expirada há muito tempo. Faça login novamente.",
+        });
+      }
     }
 
     // Emite novo token com o mesmo payload
