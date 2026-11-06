@@ -1,5 +1,17 @@
 # Changelog — Glamour Agenda Backend
 
+## Outubro/2026 — Aba "Clientes & Marketing"
+
+- Novas rotas `/api/marketing` (todas com login): lembretes de amanhã, hora de refazer,
+  marcar/desfazer "Enviei", movimento por dia da semana e período, grupos de clientes
+  (fiéis, sumidas, novas) e preferências de lembrete por cliente.
+- Novos arquivos: `src/config/marketing.js` (prazos e regras), `src/services/marketing.js`
+  (cálculos puros), `src/controllers/marketingController.js`, `src/routes/marketingRoutes.js`,
+  `src/models/ClientPreference.js`, `src/models/ReminderLog.js` (apaga sozinho em 120 dias).
+- Agendamentos existentes não são alterados. Duas coleções novas no MongoDB.
+- Login devolve `displayName` opcional (`APP_DISPLAY_NAME`) para a saudação do app.
+- Testes: 60 (32 novos). Guia completo: `docs/MARKETING.md`.
+
 ## Versão atual — Mudanças aplicadas
 
 ### Novas funcionalidades

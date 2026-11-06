@@ -12,7 +12,11 @@ exports.login = async (req, res) => {
     const expiresIn = process.env.JWT_EXPIRES_IN || "30d";
     const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn });
 
-    res.json({ message: "Login realizado com sucesso", token, expiresIn });
+    // Nome opcional para a saudação do app ("Bom dia, Maria!"). Só é enviado
+    // se APP_DISPLAY_NAME estiver configurado; senão o app usa o usuário do login.
+    const displayName = process.env.APP_DISPLAY_NAME || null;
+
+    res.json({ message: "Login realizado com sucesso", token, expiresIn, displayName });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1,26 +1,31 @@
 # 🌸 Glamour Agenda API
 
-Backend da aplicação Glamour Agenda — responsável por agendamentos, disponibilidade e autenticação.
+Backend da aplicação Glamour Agenda — agendamentos, disponibilidade, estatísticas,
+clientes, marketing e autenticação.
+
+> 📜 Histórico completo de atualizações: docs/HISTORICO.md
+> Guia da aba Clientes & Marketing: docs/MARKETING.md
 
 ---
 
 ## 🚀 Funcionalidades
 
-* 📅 CRUD de agendamentos
-* ⏱️ Horários de 30 em 30 min (07h às 21h)
-* 👥 Até 2 clientes por horário
-* 📊 Estatísticas básicas
-* 🔐 Autenticação com JWT
+* 📅 Agendamentos (criar, editar, excluir, confirmar, marcar como pago)
+* ⏱️ Horários de 30 em 30 min (07h às 21h), até 2 clientes por horário em cada studio
+* 📊 Estatísticas do mês e tendência do ano
+* 👥 Lista de clientes calculada no banco (agregação)
+* 💕 Clientes & Marketing: lembretes, movimento por dia da semana, grupos de clientes
+* 📝 Notas
+* 🔐 Login com JWT, renovação de token (janela de 7 dias) e limite de requisições
 
 ---
 
 ## 🛠️ Tecnologias
 
-* Node.js
-* Express
+* Node.js + Express
 * MongoDB + Mongoose
 * JWT
-* dotenv
+* Jest + Supertest (testes)
 
 ---
 
@@ -28,51 +33,83 @@ Backend da aplicação Glamour Agenda — responsável por agendamentos, disponi
 
 src/
 
-* config/
-* controllers/
-* models/
-* routes/
-* middlewares/
+* app.js — monta a API (separado do server.js para poder testar)
+* config/ — banco de dados e regras de marketing
+* routes/ — endereços da API
+* middlewares/ — login obrigatório (protect)
+* controllers/ — recebem o pedido e respondem
+* services/ — regras de negócio em funções puras (testáveis)
+* models/ — estrutura dos dados no MongoDB
+
+test/ — testes automáticos (banco simulado, sem dados reais)
+docs/ — histórico e guias
 
 ---
 
-## 🔗 Endpoints
+## 🔗 Endpoints (todos exigem login, exceto login e health)
 
 Auth
 POST /api/auth/login
+GET  /api/auth/verify
+POST /api/auth/refresh
 
 Agendamentos
-GET /api/appointments
-POST /api/appointments
-PUT /api/appointments/:id
+GET    /api/appointments
+POST   /api/appointments
+GET    /api/appointments/:id
+PUT    /api/appointments/:id
 DELETE /api/appointments/:id
+PATCH  /api/appointments/:id/pay
+PATCH  /api/appointments/:id/confirm
 
 Disponibilidade
-GET /api/availability?date=YYYY-MM-DD
-GET /api/availability/month?month=MM&year=YYYY
+GET /api/availability?date=YYYY-MM-DD&location=
+GET /api/availability/month?month=MM&year=YYYY&location=
 
-Stats
-GET /api/stats
+Estatísticas
+GET /api/stats/monthly?month=&year=
+GET /api/stats/trend?year=
+
+Clientes
+GET /api/clients?search=
+
+Clientes & Marketing
+GET    /api/marketing/reminders
+POST   /api/marketing/reminders/sent
+DELETE /api/marketing/reminders/sent?key=
+GET    /api/marketing/movement
+GET    /api/marketing/segments
+GET    /api/marketing/prefs/:clientName
+PUT    /api/marketing/prefs/:clientName
+
+Notas
+GET /api/notes · GET /api/notes/tags · POST /api/notes
+GET/PUT/DELETE /api/notes/:id · PATCH /api/notes/:id/pin
 
 Health
-GET /health
+GET /health (confere a conexão com o banco)
 
 ---
 
-## ⚙️ .env
+## ⚙️ Variáveis de ambiente (.env local ou painel do Render — nunca no GitHub)
 
 PORT=5000
 MONGO_URI=sua_uri
-JWT_SECRET=seu_segredo
+JWT_SECRET=um_segredo_longo
+JWT_EXPIRES_IN=30d
+APP_USER=usuario_do_login
+APP_PASS=senha_do_login
+APP_DISPLAY_NAME=Nome que aparece na saudação (opcional)
 WORK_START=7
 WORK_END=21
 
 ---
 
-## ▶️ Rodar projeto
+## ▶️ Rodar e testar
 
 npm install
-npm run dev
+npm run dev     (desenvolvimento)
+npm test        (60 testes automáticos)
 
 ---
 

@@ -41,6 +41,7 @@ app.use("/api/availability",  require("./routes/availabilityRoutes"));
 app.use("/api/auth",          require("./routes/authRoutes"));
 app.use("/api/notes",         require("./routes/noteRoutes"));
 app.use("/api/clients",       require("./routes/clientRoutes"));
+app.use("/api/marketing",     require("./routes/marketingRoutes"));
 
 // ── Health check (verifica MongoDB de verdade) ────────────────────
 app.get("/health", (_req, res) => {

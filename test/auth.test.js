@@ -13,6 +13,31 @@ describe("POST /api/auth/login", () => {
     expect(typeof res.body.token).toBe("string");
   });
 
+  it("envia displayName quando APP_DISPLAY_NAME está configurado", async () => {
+    process.env.APP_DISPLAY_NAME = "Maria";
+    try {
+      const res = await request(app)
+        .post("/api/auth/login")
+        .send({ username: process.env.APP_USER, password: process.env.APP_PASS });
+
+      expect(res.status).toBe(200);
+      expect(res.body.displayName).toBe("Maria");
+    } finally {
+      delete process.env.APP_DISPLAY_NAME;
+    }
+  });
+
+  it("displayName é null quando APP_DISPLAY_NAME não existe (nada quebra)", async () => {
+    delete process.env.APP_DISPLAY_NAME;
+    const res = await request(app)
+      .post("/api/auth/login")
+      .send({ username: process.env.APP_USER, password: process.env.APP_PASS });
+
+    expect(res.status).toBe(200);
+    expect(res.body.token).toBeDefined();
+    expect(res.body.displayName).toBeNull();
+  });
+
   it("rejeita usuário/senha incorretos", async () => {
     const res = await request(app)
       .post("/api/auth/login")
